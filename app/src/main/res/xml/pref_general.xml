@@ -1,0 +1,41 @@
+<androidx.preference.PreferenceScreen xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <PreferenceCategory app:title="General Settings">
+        <EditTextPreference
+            app:defaultValue="@string/default_dialNo"
+            app:key='@string/key_dialNo'
+            app:summary="@string/default_dialNo"
+            app:title='@string/title_dialNo'
+            />
+
+        <EditTextPreference
+            app:defaultValue="@string/default_sms"
+            app:key='@string/key_smsMessage'
+            app:summary='@string/default_sms'
+            app:title="@string/title_name"/>
+        <Preference
+            app:summary="0:00"
+            app:key="key_driveTime"
+            app:title="Driving Time(Minutes:Seconds)"
+            />
+        <SwitchPreference
+            app:key="pref_nfc"
+            app:title="Use NFC"
+            app:defaultValue="false" />
+        <SwitchPreference
+            app:key="pref_automatic"
+            app:title="@string/setting_AutoSwitch"
+            app:defaultValue="false" />
+
+    </PreferenceCategory>
+
+    <PreferenceCategory app:title="About">
+
+        <Preference
+            app:summary="@string/summary_version"
+            app:title="Version"
+            />
+
+    </PreferenceCategory>
+
+</androidx.preference.PreferenceScreen>
