@@ -50,8 +50,8 @@ public class monitor_menu extends Fragment {
         editor.putString(key_4,""+s.getProgress()).commit();
         String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
         editor.putString(key_2,""+currentDateTimeString).commit();
-      // sharedPreferences.edit().putString(key_4,""+s.getProgress()).commit();
-     //   sharedPreferences.edit().putString(key_2,""+DateFormat.getDateTimeInstance().format(new Date())).commit();
+        // sharedPreferences.edit().putString(key_4,""+s.getProgress()).commit();
+        //   sharedPreferences.edit().putString(key_2,""+DateFormat.getDateTimeInstance().format(new Date())).commit();
         Log.d(TAG, "s :: " + s.getProgress());
         Log.d(TAG, "s :: " + currentDateTimeString);
 

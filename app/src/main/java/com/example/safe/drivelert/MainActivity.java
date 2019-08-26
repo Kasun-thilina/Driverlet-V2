@@ -66,6 +66,7 @@ import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import android.location.GpsStatus;
 import android.location.Location;
@@ -91,6 +92,7 @@ public class MainActivity extends FragmentActivity
     private boolean tagDetach=false;//Boolean variable used to detect the tag detach scenarios
     private boolean isCorrect=false;//Boolean variable used to detect the correct NFC tag with the specific code in it
     private boolean isConnected=false;//Boolean variable to check Raspberry PI Connection
+    Boolean proceed=false;
     private int nfcError=0,dialogCounter=0;
     private String longitude="0.0",latitude="0.0";
     Dialog dialog;
@@ -116,8 +118,9 @@ public class MainActivity extends FragmentActivity
     boolean useNFC,showSpeed ;
     private LocationManager mLocationManager;
     MagicButton button;
+    AtomicBoolean done;
 
-    /**URL For Raspberry PI /Sensor Should go here*/
+    /**URL For Raspberry PI Should go here*/
     final URL APIURL=new URL("https://dl.dropboxusercontent.com/s/pkp0q84g09tlrg2/api2.json");
 
 
@@ -179,7 +182,7 @@ public class MainActivity extends FragmentActivity
         useNFC= (preferences.getBoolean("pref_nfc",true));
         sendRequest();
         button=findViewById(R.id.magic_button);
-
+        done = new AtomicBoolean();
 
     }
 
@@ -366,7 +369,13 @@ public class MainActivity extends FragmentActivity
             String units="km/h";
             s= new SpannableString(String.format(Locale.ENGLISH, "%.0f %s", speed, units));
             s.setSpan(new RelativeSizeSpan(0.45f), s.length()-units.length()-1, s.length(), 0);
-            updateUI();
+            Log.d(TAG, "Speed: "+speed);
+            if (speed>10 &isConnected) {
+
+                if (done.compareAndSet(false, true)) {
+                    updateUI();
+                }
+            }
         }
     }
 
@@ -477,7 +486,7 @@ public class MainActivity extends FragmentActivity
             return null;
         }
         protected void onProgressUpdate(NdefMessage... progress) {
-            updateUI();
+            //updateUI();
             if (isCorrect) {
                 uiTransitions(true);
             }
@@ -507,101 +516,54 @@ public class MainActivity extends FragmentActivity
         dialogIsDriving.setCancelable(true);
         // txtSpeed=findViewById(R.id.txtSpeed);
         drivingMode=findViewById(R.id.txtSpeed);
-        // currentSpeed = findViewById(R.id.valSpeed);
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    SharedPreferences pref = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                   /* String status=pref.getString("driving", "stop");
-                    Log.d(TAG, "Driving Status : " + status);
-                    if(status.equalsIgnoreCase("stop"))
-                    {
-                        sharedPreferences.edit().putString("key_driveTime","0:0").commit();
-                        sharedPreferences.edit().putString("driving","running").commit();
-                        Log.d(TAG, "Driving Status : " + status);
-                    }*/
-                    String counter=pref.getString("key_driveTime", "0:0");
-                    String split[]=counter.split(":");
-                    int miniuts=Integer.parseInt(split[0]);
-                    int seconds=Integer.parseInt(split[1]);
-
-                    Integer count=(miniuts*60)+seconds;
-                    //Double count=Double.parseDouble(counter);
-                    while (speed>10)
-                    {
-                        Thread.sleep(1000);
-                        count++;
-
-                        miniuts=count/60;
-                        seconds=count%60;
-                        String finalVal=String.valueOf(miniuts)+":"+String.valueOf(seconds);
-                        //Log.d(TAG, "Driving Time : " + finalVal);
-                        sharedPreferences.edit().putString("key_driveTime",finalVal).commit();
-                    }
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
-        //drivingMode.setText(R.string.msg_notDriving);
-       /* if (showSpeed) {
-            drivingMode.setTextColor(Color.parseColor("#a5d6a7"));
-        }*/
-        // Log.d(TAG, "activeNFC: "+correctTAG);
-        Boolean proceed=false;
         String valSpeed=s.toString();
         String strSpeed="Speed: ";
-        Log.d(TAG, "Speed: "+speed);
-        SpannableString speedValue=  new SpannableString(valSpeed);
-        SpannableString speedText=  new SpannableString(strSpeed);
-        speedText.setSpan(new RelativeSizeSpan(1.35f), 0,5, 0); // set size
-        if (speed > 10) {
-            speedValue.setSpan(new ForegroundColorSpan(Color.parseColor("#00bfa5")),0,6,0);// set color
-            //txtSpeed.setText();
-              /*  if (!(gifScanning.getVisibility()==View.VISIBLE)) {
-                    gpsIcon.setVisibility(View.VISIBLE);
-                }*/
-            gpsIcon.setVisibility(View.VISIBLE);
-            drivingMode.setText(R.string.msg_driving);
-            drivingMode.setTextColor(Color.parseColor("#4caf50"));
-            isDriving = true;
-            hasDriven=true;
-            proceed=true;
-        }
+        Log.d(TAG, "########Speed2: "+speed);
+        gpsIcon.setVisibility(View.VISIBLE);
+        isDriving = true;
+        hasDriven = true;
         /**
          * Starting new activity if speed is greater than 10 and Raspberry PI Connected
          */
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
         boolean automatic = (preferences.getBoolean("pref_automatic",true));
-        if (proceed & isConnected & automatic) {
-            new Thread(new Runnable() {
-                @Override
-                public void run() {
-                    for (int i = 10; i > 0; i--) {
-                        try {
-                            Thread.sleep(10000);
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                for (int i = 10; i > 0; i--) {
+                    try {
+                        Thread.sleep(1000);
 
-                            final int val = i;
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
+                        final int val = i;
+                        runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (drivingMode != null) {
+                                    drivingMode.setText(R.string.msg_driving);
+                                    drivingMode.setTextColor(Color.parseColor("#4caf50"));
                                     drivingMode.setText("Starting Facetracker in "+String.valueOf(val));
-                                    Log.d(TAG, "Intent counter " + val);
-                                    startActivity(new Intent(MainActivity.this,FaceTrackerActivity.class));
-
                                 }
-                            });
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                                Log.d(TAG, "Intent counter " + val);
+                            }
+                        });
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
                     }
                 }
-            }).start();
-        }
-
+                runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        Intent faceTracker=new Intent(MainActivity.this,FaceTrackerActivity.class);
+                        faceTracker.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
+                        startActivity(faceTracker);
+                        finish();
+                    }
+                });
+            }
+        }).start();
     }
+
+
     /**This Method set the GPS Scanner animation and NFC detected , Navigation Mode icons*/
     private void uiTransitions(boolean isfound){
         try {

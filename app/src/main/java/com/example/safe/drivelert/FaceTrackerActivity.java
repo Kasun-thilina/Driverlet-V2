@@ -162,9 +162,9 @@ public final class FaceTrackerActivity extends AppCompatActivity implements Loca
     AlertDialog errorDialog;
     //private ImageView nfcIcon,RSPIcon;
     //private ImageView gpsIcon;
-   // TextView txtSearching,txtSpeed;
+    // TextView txtSearching,txtSpeed;
     /**URL For Raspberry PI /Sensor Should go here*/
-    final URL APIURL=new URL(" https://safedrive.free.beeceptor.com");
+    final URL APIURL=new URL(" https://dl.dropboxusercontent.com/s/pkp0q84g09tlrg2/api2.json");
     final URL SENSORURL=new URL(" https://demo7381782.mockable.io/");
     /**
      * For GPS
@@ -1286,62 +1286,62 @@ public final class FaceTrackerActivity extends AppCompatActivity implements Loca
         }*/
         // Log.d(TAG, "activeNFC: "+correctTAG);
 
-            String valSpeed=s.toString();
-            String strSpeed="Speed: ";
-            SpannableString speedValue=  new SpannableString(valSpeed);
-            SpannableString speedText=  new SpannableString(strSpeed);
-            speedText.setSpan(new RelativeSizeSpan(1.35f), 0,5, 0); // set size
-            if (speed > 10) {
-                isDriving = true;
-                hasDriven=true;
-            } else {
-                speedValue.setSpan(new ForegroundColorSpan(Color.parseColor("#ef5350")),0,6,0);// set color
-                isDriving=false;
-                dialogIsDriving.setMessage("Are You Still Driving?");
-                dialogIsDriving.setPositiveButton(
-                        "Yes",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                dialog.dismiss();
+        String valSpeed=s.toString();
+        String strSpeed="Speed: ";
+        SpannableString speedValue=  new SpannableString(valSpeed);
+        SpannableString speedText=  new SpannableString(strSpeed);
+        speedText.setSpan(new RelativeSizeSpan(1.35f), 0,5, 0); // set size
+        if (speed > 10) {
+            isDriving = true;
+            hasDriven=true;
+        } else {
+            speedValue.setSpan(new ForegroundColorSpan(Color.parseColor("#ef5350")),0,6,0);// set color
+            isDriving=false;
+            dialogIsDriving.setMessage("Are You Still Driving?");
+            dialogIsDriving.setPositiveButton(
+                    "Yes",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            dialog.dismiss();
 
-                            }
-                        });
-                dialogIsDriving.setNegativeButton(
-                        "No",
-                        new DialogInterface.OnClickListener() {
-                            public void onClick(DialogInterface dialog, int id) {
-                                SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
-                                boolean useNFC = (preferences.getBoolean("pref_nfc",true));
-                                startEndActivity();
-                                    //uiTransitions(true);
-
-                            }
-                        });
-                dialogIsDriving.setNeutralButton("Emergency", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialog, int which) {
-                        isEmergency=true;
-                        activateEmergency();
-                    }
-                });
-                if (hasDriven & (!isDrivingDialogShown)) {
-                    errorDialog = dialogIsDriving.create();
-                    errorDialog.show();
-                    Speech.getInstance().say("Are You Still Driving?");
-                    isDrivingDialogShown=true;
-                    Timer timer = new Timer();
-                    timer.schedule(new TimerTask(){
-                        @Override
-                        public void run() {
-                            //This is where we tell it what to do when it hits 60 seconds
-                            hasDriven=false;
-                            isDrivingDialogShown=false;
-                            Log.d(TAG, "*****Delayed" );
                         }
-                    }, 60000);
-                }
+                    });
+            dialogIsDriving.setNegativeButton(
+                    "No",
+                    new DialogInterface.OnClickListener() {
+                        public void onClick(DialogInterface dialog, int id) {
+                            SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+                            boolean useNFC = (preferences.getBoolean("pref_nfc",true));
+                            startEndActivity();
+                            //uiTransitions(true);
 
+                        }
+                    });
+            dialogIsDriving.setNeutralButton("Emergency", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialog, int which) {
+                    isEmergency=true;
+                    activateEmergency();
+                }
+            });
+            if (hasDriven & (!isDrivingDialogShown)) {
+                errorDialog = dialogIsDriving.create();
+                errorDialog.show();
+                Speech.getInstance().say("Are You Still Driving?");
+                isDrivingDialogShown=true;
+                Timer timer = new Timer();
+                timer.schedule(new TimerTask(){
+                    @Override
+                    public void run() {
+                        //This is where we tell it what to do when it hits 60 seconds
+                        hasDriven=false;
+                        isDrivingDialogShown=false;
+                        Log.d(TAG, "*****Delayed" );
+                    }
+                }, 60000);
             }
+
+        }
 
     }
     /**
@@ -1505,7 +1505,7 @@ public final class FaceTrackerActivity extends AppCompatActivity implements Loca
                 });
 
         AlertDialog errorDialog = errorMessage.create();
-        errorDialog.show();
+        //errorDialog.show();
     }
     public static Data getData() {
         return data;
