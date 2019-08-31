@@ -164,8 +164,8 @@ public final class FaceTrackerActivity extends AppCompatActivity implements Loca
     //private ImageView gpsIcon;
     // TextView txtSearching,txtSpeed;
     /**URL For Raspberry PI /Sensor Should go here*/
-    final URL APIURL=new URL(" https://dl.dropboxusercontent.com/s/pkp0q84g09tlrg2/api2.json");
-    final URL SENSORURL=new URL(" https://demo7381782.mockable.io/");
+    final URL APIURL=new URL("http://10.42.0.1:80/login");
+    final URL SENSORURL=new URL(" http://10.42.0.1:80/accident");
     /**
      * For GPS
      */
@@ -198,7 +198,7 @@ public final class FaceTrackerActivity extends AppCompatActivity implements Loca
         prevInit();
         init();
         getLastLocationNewMethod();
-
+        sendRequest();
         reqPermission();
         initNFC();
         /**
@@ -1062,24 +1062,18 @@ public final class FaceTrackerActivity extends AppCompatActivity implements Loca
                                     }
                                     String result = total.toString();
                                     //String result = "true";
-                                    Log.d(TAG, "JSON ResponseBody :" + result);
+                                    Log.d(TAG, "Facetracker JSON ResponseBody :" + result);
 
                                     if (result.equalsIgnoreCase("True"))
                                     {
                                         isConnected=true;
-                                        runOnUiThread(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                //uiTransitions(true);
-                                            }
-                                        });
+
                                     }
                                     apiConnection.disconnect();
-                                    /***Sensor Connection  **/
-                                    HttpURLConnection sensorConnection =
+                                    /***Sensor Connection  **/HttpURLConnection sensorConnection =
                                             (HttpURLConnection) SENSORURL.openConnection();
                                     sensorConnection.setRequestProperty("Content-Type", "text/plain");
-                                    InputStream seonsorResponseBody = apiConnection.getInputStream();
+                                    InputStream seonsorResponseBody = sensorConnection.getInputStream();
                                     InputStreamReader sensorResponseBodyReader =
                                             new InputStreamReader(seonsorResponseBody, "UTF-8");
                                     BufferedReader r2 = new BufferedReader(new InputStreamReader(seonsorResponseBody));
@@ -1089,7 +1083,7 @@ public final class FaceTrackerActivity extends AppCompatActivity implements Loca
                                     }
                                     String sensorResult = readVal.toString();
                                     //String result = "true";
-                                    Log.d(TAG, "JSON ResponseBody :" + sensorResult);
+                                    Log.d(TAG, "JSON Sensor Response ****** :" + sensorResult);
 
                                     if (sensorResult.equalsIgnoreCase("True"))
                                     {
@@ -1097,6 +1091,7 @@ public final class FaceTrackerActivity extends AppCompatActivity implements Loca
                                         runOnUiThread(new Runnable() {
                                             @Override
                                             public void run() {
+                                                isEmergency=true;
                                                 activateEmergency();
                                             }
                                         });
@@ -1409,6 +1404,7 @@ public final class FaceTrackerActivity extends AppCompatActivity implements Loca
                     if (isEmergency & isDialogshowing) {
                         dialog.dismiss();
                         isDialogshowing=false;
+                        isEmergency=false;
                         startActivity(dialer);
                         /**Sleeping the background thread for a while because call gets disconnected when sending the message at the same time in a call*/
                         try {
@@ -1630,7 +1626,7 @@ public final class FaceTrackerActivity extends AppCompatActivity implements Loca
     @Override
     public void onBeginningOfSpeech() {
         Log.i(TAG, "onBeginningOfSpeech********");
-        sendRequest();
+        //sendRequest();
 
     }
 
